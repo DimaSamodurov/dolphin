@@ -8,12 +8,12 @@ module Dolphin
 
       def features
         path = feature_file
-        
+
         if @last_read
           mtime = File.mtime(path)
           return @features if mtime.to_i <= @last_read.to_i
         end
-        
+
         @last_read = Time.now
         @features  = YAML.load_file(path) || {}
       rescue
@@ -27,19 +27,19 @@ module Dolphin
 
         save(stored_features)
       end
-      
+
       def clear!
         @last_read = @features = nil
         save({})
       end
 
       def feature_directory
-        @custom_feature_directory || rails_feature_directory
+        @feature_directory ||= rails_feature_directory
       end
 
       def feature_directory=(path)
         FileUtils.mkdir_p(path) if path
-        @custom_feature_directory = path
+        @feature_directory = path
         @last_read = @features = nil
       end
 
