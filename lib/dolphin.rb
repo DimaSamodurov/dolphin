@@ -24,10 +24,10 @@ module Dolphin
 
     def default_flippers
       {
-        'enabled'  => lambda { true },
-        'disabled' => lambda { false },
-        'true'  => lambda { true },
-        'false' => lambda { false }
+        'enabled'    => Proc.new { true },
+        'disabled'   => Proc.new { false },
+        'true'       => Proc.new { true },
+        'false'      => Proc.new { false }
       }
     end
 
