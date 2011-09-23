@@ -25,7 +25,9 @@ module Dolphin
     def default_flippers
       {
         'enabled'  => lambda { true },
-        'disabled' => lambda { false }
+        'disabled' => lambda { false },
+        'true'  => lambda { true },
+        'false' => lambda { false }
       }
     end
 

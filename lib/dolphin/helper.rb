@@ -20,7 +20,7 @@ module Dolphin
     def feature_available?(name)
       return false unless key = FeatureStore.features[name.to_s]
 
-      if flipper = Dolphin.flippers[key]
+      if flipper = Dolphin.flippers[key.to_s]
         instance_eval(&flipper)
       end
 
