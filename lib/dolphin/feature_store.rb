@@ -15,7 +15,7 @@ module Dolphin
         end
 
         @last_read = Time.now
-        @features  = YAML.load_file(path) || {}
+        @features  = YAML.load_file(path)[Rails.env] || {}
       rescue
         warn "[Dolphin] Error loading features - #{e} - #{e.backtrace.inspect}"
         {}
@@ -46,9 +46,12 @@ module Dolphin
     private
 
       def save(updated_features)
+        all = YAML.load_file(path) || {}
+        all[Rails.env] = updated_features
+
         File.open(feature_file, 'w') do |f|
           f.sync = true
-          YAML.dump(updated_features, f)
+          YAML.dump(all, f)
         end
       end
 
@@ -59,7 +62,7 @@ module Dolphin
       end
 
       def rails_feature_directory
-        path = File.join(Rails.root, 'config', 'dolphin')
+        path = File.join(Rails.root, 'config')
         FileUtils.mkdir_p path
         path
       end
