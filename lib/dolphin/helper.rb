@@ -7,20 +7,14 @@ module Dolphin
       if partial_options[:partial] && respond_to?(:render)
         render partial_options
       elsif block_given?
-        block.call
+        yield
       end
     end
 
-    def feature?(name)
-      feature_available?(name)
-    end
-
-  private
-
     def feature_available?(name)
-      return false unless key = FeatureStore.features[name.to_s]
+      return false unless key = Dolphin.features[name.to_sym]
 
-      if flipper = Dolphin.flippers[key.to_s]
+      if flipper = Dolphin.flippers[key.to_sym]
         instance_eval(&flipper)
       end
 
@@ -28,6 +22,8 @@ module Dolphin
       warn "[Dolphin] Error checking feature #{name}:#{key} - #{e}"
       false
     end
+
+    alias_method :feature?, :feature_available?
 
   end
 end

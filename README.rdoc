@@ -1,80 +1,140 @@
 = Dolphin
 
-Dolphin is a feature flipper, as Rails plugin. Use it to flip areas of your app on your off, based on pre-defined conditions.
+Dolphin is a feature flipper. Use it to flip areas of your app on your off, based on pre-defined conditions.
+Current fork has intention to make Dolphin a general purpose gem, not a rails plugin. See HISTORY for details.
+
+== Definitions
+
+* Feature entitles functionality we want to make available or not.
+
+Example: :new_design, :blog, :rc1
+
+     {:new_design => :off}
+
+* Flipper defines a condition of availability.
+
+Example: :on, :off, :live, :qa, :admin_area
+
+Flipper has a name and a block that evaluates to true or false.
+
+    flipper(:qa) { Rails.env.test? || Rails.env.development? || Rails.env.qa? }
+
 
 == Installation
 
-  git submodule add git://github.com/grillpanda/dolphin.git vendor/plugins/dolphin
-  git submodule init
-  git submodule update
+Add following line into your bundle gem
 
-Or
+  gem 'dolphin', :git => 'git@github.com:DimaSamodurov/dolphin.git'
 
-  script/plugin install git://github.com/grillpanda/dolphin.git
+== Initialize
 
-== Configuration
+You have to define features and optionally flippers.
+There are six default flippers defined: 'on', 'off', 'true', 'false', 'enabled', 'disabled'
+with static meaning "available" or "not available".
+
+You can define or update features and flippers anywhere in your application.
+Commonly they're defined in an initialization section like config/initializers/dolphin.rb:
+
+    Dolphin.features = {:wiki => :on, :blog => :off}
+
+Or you can load persisted features from file e.g 'config/features.yml':
+
+    development:
+      blog: on
+
+    production:
+      blog: off
+
+Then in the config/initializers/dolphin.rb:
+
+    Dolphin.features = YAML.load_file(Rails.root.join('config/features.yml'))[Rails.env]
+
+=== Configuration
+
+Configuration simply means defining features and flippers.
+You can define them directly via Dolphin namespace like above.
+Also the 'configure' method followed by a block is available as a common pattern.
+Inside the block you have access to all Dolphin's methods.
+
+    Dolphin.configure do
+      features.clear
+      flippers.clear
+      features = { :module_1 => :demo, :module_2 => :demo }
+      flipper(:demo) { %w(staging qa).include? Rails.env }
+    end
+
+=== Define your features
+
+Features defined simply in a hash where key is a name of the feature and value is a name of the flipper.
+
+    {:feature1 => :on, :feature2 => :off}
+
+You can do with a hash whatever you want.
+
+    Dolphin.features = {}
+    Dolphin.features.merge!(new_features)
+    Dolphin.features[:demo] = :live
+    Dolphin.features.clear
 
 === Define your flippers
 
-You’ll need to add some flippers. These are called later by the feature helper and determine whether a feature should be visible or not.
+To define a flipper you should provide it's name and a block returning boolean value.
 
-Dolphin has the flippers <b><tt>enabled</tt></b> and <b><tt>disabled</tt></b> baked in. These return <tt>true</tt> and <tt>false</tt> respectively.
+  Dolphin.flipper(:admin) { current_user.admin? }
 
-In <b><tt>config/initializers/dolphin.rb</tt></b>:
+Or
+
   Dolphin.configure do
     flipper(:admin) { logged_in_user.admin? }
     flipper(:local) { request.env['HTTP_X_FORWARDED_FOR'] == '127.0.0.1' }
   end
 
+
 Note that whatever methods or variables you use in your flipper blocks will need to be available to the scope in which you include <tt>Dolphin::Helper</tt>.
-
-=== Add some features
-
-Add <b><tt>config/dolphin/features.yml</tt></b> and configure some features. You need to provide the name of your feature, and the name of the flipper it should use.
-
-  local_feature: local
-  disabled_feature: off
-
-<b>Important</b>: If you want to remember your feature settings between deploys, store <tt>features.yml</tt> somewhere that will survive them and link to it.
 
 === Include the helper
 
-  module ApplicationController < ActionController::Base
-    include Dolphin::Helper
-  end
+    module ApplicationController < ActionController::Base
+      include Dolphin::Helper
+    end
 
-  module ApplicationHelper
-    include Dolphin::Helper
-  end
+    module ApplicationHelper
+      include Dolphin::Helper
+    end
 
 == Usage
 
 === Displaying a feature, or not
 
-Use your super-secret mondo-feature with the <tt>feature</tt> helper method.
+    <% feature :local_feature do %>
+        <h1>MMM, TUNA</h1>
+    <% end %>
 
-  <% feature :local_feature do %>
-    <h1>MMM, TUNA</h1>
-  <% end %>
-
-Dolphin will call the flipper associated with the feature and run what’s in the feature block if the result is truthy. If a feature or a flipper isn’t found, or there’s an error with the flipper, whatever’s in the feature block won’t be run.
-
-You can pass a partial to the <tt>feature</tt> helper instead of a block.
-
-  <%= feature(:local_feature, :partial => 'tuna', :collection => @tuna) %>
+Dolphin will call the flipper associated with the feature and run what’s in the feature block if the result is truthy.
+If a feature or a flipper isn’t found, or there’s an error with the flipper, whatever’s in the feature block won’t be run.
 
 You can check the availability of a feature using <tt>feature?</tt>
 
-  <%= link_to('TUNA FISH', tuna_path) if feature?(:tuna) %>
+    <%= link_to('TUNA FISH', tuna_path) if feature?(:tuna) %>
 
-=== Updating a feature
+== Testing
 
-  rake dolphin:update_feature[feature_name,rule_name]
+    rake
 
-== Considerations
+== Documentation
 
-Dolphin stores it’s feature configuration on disk, and needs to read it once per request. This hasn’t been a performance issue for us, but it’s something to keep in mind.
+    rake yard
+
+
+== Similar approaches
+
+There are variety of flipper implementations
+
+https://github.com/jamesgolick/rollout
+https://github.com/qype/feature_flipper
+https://github.com/blaulabs/ruby_flipper - I like it. I would not fork Dolphin if i saw this early.
+
 
 == License
 
-Copyright (c) 2010 Matt Johnson, released under the MIT license
+Copyright (c) 2010 Matt Johnson, fork by Dima Samodurov, released under the MIT license
