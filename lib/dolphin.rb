@@ -21,6 +21,10 @@ module Dolphin
       @features ||= {}
     end
 
+    def features=(value)
+      @features = value
+    end
+
     def clear!
       features.clear
       flippers.clear

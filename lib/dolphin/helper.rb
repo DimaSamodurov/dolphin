@@ -12,7 +12,7 @@ module Dolphin
     end
 
     def feature_available?(name)
-      return false unless key = Dolphin.features[name.to_sym]
+      return false unless key = (Dolphin.features[name.to_sym] || Dolphin.features[name.to_s])
 
       if flipper = Dolphin.flippers[key.to_sym]
         instance_eval(&flipper)

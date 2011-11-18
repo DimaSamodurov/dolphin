@@ -17,8 +17,9 @@ spec = Gem::Specification.new do |s|
   s.files             = %w(Rakefile README.rdoc MIT-LICENSE) + Dir.glob("{spec,lib/**/*}")
   s.require_paths     = ["lib"]
 
-  s.add_development_dependency("rspec")
-  s.add_development_dependency("yard", [">= 0.5.8"])
+  s.add_development_dependency "rspec"
+  s.add_development_dependency "yard"
+  s.add_development_dependency "activesupport"
 
 end
 

@@ -57,8 +57,7 @@ Also the 'configure' method followed by a block is available as a common pattern
 Inside the block you have access to all Dolphin's methods.
 
     Dolphin.configure do
-      features.clear
-      flippers.clear
+      clear!
       features = { :module_1 => :demo, :module_2 => :demo }
       flipper(:demo) { %w(staging qa).include? Rails.env }
     end
@@ -76,8 +75,20 @@ You can do with a hash whatever you want.
     Dolphin.features[:demo] = :live
     Dolphin.features.clear
 
+Note: features do NOT have indifferent access by default. I intentionally have not use with_indifferent_access behind the scenes.
+Had i defined this would have eliminated a sense of the Symbol class. So be accurate with keys.
+
+But you can easily change this:
+
+    require 'active_support/core_ext/hash/indifferent_access'
+    Dolphin.features = {:blog => :on, 'issues' => :on, :wiki => :off, 'comments' => :off}.with_indifferent_access
+
+    Dolphin.feature? :blog # => true
+    Dolphin.feature? 'blog' # => true
+
 === Define your flippers
 
+Flippers are defined in a hash as well where key is a flipper name and value is a Proc.
 To define a flipper you should provide it's name and a block returning boolean value.
 
   Dolphin.flipper(:admin) { current_user.admin? }
@@ -88,7 +99,6 @@ Or
     flipper(:admin) { logged_in_user.admin? }
     flipper(:local) { request.env['HTTP_X_FORWARDED_FOR'] == '127.0.0.1' }
   end
-
 
 Note that whatever methods or variables you use in your flipper blocks will need to be available to the scope in which you include <tt>Dolphin::Helper</tt>.
 
