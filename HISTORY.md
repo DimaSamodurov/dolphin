@@ -1,3 +1,12 @@
+# 0.1.2 / 2011-11-17
+
+* more explicit config
+* enable static feature definition (not using flippers):
+
+    Dolphin.features = {:wiki => true, :blog => false}
+
+  This also solves some yaml loading effect where string values implicitly converted to boolean.
+
 # 0.1.1 / 2011-11-17
 
 Code was cleaned up with intention to make library a general purpose gem, not a rails plugin.

@@ -12,10 +12,13 @@ module Dolphin
     end
 
     def feature_available?(name)
-      return false unless key = (Dolphin.features[name.to_sym] || Dolphin.features[name.to_s])
+      return false unless flipper = (Dolphin.features[name.to_sym] || Dolphin.features[name.to_s])
 
-      if flipper = Dolphin.flippers[key.to_sym]
-        instance_eval(&flipper)
+      if (flipper.is_a? TrueClass) or (flipper.is_a? FalseClass)
+        flipper
+      else
+        proc = Dolphin.flippers[flipper.to_sym]
+        instance_eval(&proc)
       end
 
     rescue => e

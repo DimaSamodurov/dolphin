@@ -5,7 +5,7 @@ module Dolphin
 
   class << self
     def configure(&block)
-      instance_eval &block
+      instance_exec self, &block
     end
 
     def flipper(name, &block)

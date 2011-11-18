@@ -35,7 +35,8 @@ with static meaning "available" or "not available".
 You can define or update features and flippers anywhere in your application.
 Commonly they're defined in an initialization section like config/initializers/dolphin.rb:
 
-    Dolphin.features = {:wiki => :on, :blog => :off}
+    Dolphin.features = {:wiki => :on, :blog => :off} # using flippers
+    Dolphin.features = {:wiki => true, :blog => false} # using static availability values.
 
 Or you can load persisted features from file e.g 'config/features.yml':
 
@@ -62,11 +63,21 @@ Inside the block you have access to all Dolphin's methods.
       flipper(:demo) { %w(staging qa).include? Rails.env }
     end
 
+Or more explicit:
+
+    Dolphin.configure do |config|
+      config.clear!
+      config.features = { :module_1 => :demo, :module_2 => :demo }
+      config.flipper(:demo) { %w(staging qa).include? Rails.env }
+    end
+
 === Define your features
 
-Features defined simply in a hash where key is a name of the feature and value is a name of the flipper.
+Features defined simply in a hash where key is a name of the feature and value is a name of the flipper or boolean.
 
-    {:feature1 => :on, :feature2 => :off}
+    {:feature1 => :on, :feature2 => :off, :feature3 => true}
+
+In case of boolean value feature availability is static. No flipper is used to evaluate it.
 
 You can do with a hash whatever you want.
 

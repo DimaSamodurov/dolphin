@@ -8,6 +8,13 @@ describe 'Dolphin' do
   end
 
   describe ".features" do
+    describe "static availability" do
+      it "should read boolean value" do
+        Dolphin.features = {:wiki => true, :blog => false}
+        experimental.feature?(:wiki).should be_true
+        experimental.feature?(:blog).should be_false
+      end
+    end
 
     it "may have indifferent access" do
       Dolphin.features = {:blog => :on, 'issues' => :on, :wiki => :off, 'comments' => :off}.with_indifferent_access
